@@ -10,7 +10,7 @@ project(PotentiometerTest)
 pico_sdk_init()
 
 add_executable(PotentiometerTest
-    potentiometerTest.cpp    
+    main.cpp    
 )
 
 target_link_libraries(PotentiometerTest
