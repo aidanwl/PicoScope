@@ -4,12 +4,10 @@ Validating Pico ADC before implementing waveform capture
 
 ## Tests
 
-### potentiometer_test
+### input
 
-Reads a variable analog voltage using ADC0
+Tests analog voltage measurement using a potentiometer connected to the Pico ADC.
 
-Hardware:
-- 10k potentiometer
-- GPIO26 (ADC0)
-
-
+- ADC raw readings and voltage conversion
+- Measurement accuracy
+- ADC noise and stability
