@@ -1,3 +1,7 @@
+/*
+Potentiometer ADC Test: Converts raw ADC values into voltage measured over USB serial
+*/
+
 #include <iostream>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
