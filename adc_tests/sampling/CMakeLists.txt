@@ -5,20 +5,21 @@ set(PICO_SDK_PATH "/home/awong50/pico/pico-sdk/")
 
 include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
 
-project(InputTest)
+project(SamplingTest)
 
 pico_sdk_init()
 
-add_executable(InputTest
+add_executable(SamplingTest
     main.cpp    
 )
 
-target_link_libraries(InputTest
+target_link_libraries(SamplingTest
     pico_stdlib
+    pico_time
     hardware_adc
     hardware_gpio
 )
 
-pico_add_extra_outputs(InputTest)
-pico_enable_stdio_usb(InputTest 1)
-pico_enable_stdio_uart(InputTest 0)
+pico_add_extra_outputs(SamplingTest)
+pico_enable_stdio_usb(SamplingTest 1)
+pico_enable_stdio_uart(SamplingTest 0)

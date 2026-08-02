@@ -1,5 +1,5 @@
 /*
-Potentiometer ADC Test: Converts raw ADC values into voltage measured over USB serial
+ADC Input Test: Converts raw ADC values into voltage measured over USB serial
 */
 
 #include <iostream>
@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
     stdio_init_all();
-    cout << "Potentiometer Test" << endl;
+    cout << "Input Test" << endl;
 
     adc_init();
 
