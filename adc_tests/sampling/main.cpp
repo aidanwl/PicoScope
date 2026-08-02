@@ -72,7 +72,7 @@ int main() {
 
         while (1) {
             uint64_t samples = 10000;
-            double requested_rate = 100000; // 50 kHz
+            double requested_rate = 50000; // 50 kHz
 
             double actual_rate = controlled_sampling_rate(samples, requested_rate);
 
