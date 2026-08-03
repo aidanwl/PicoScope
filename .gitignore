@@ -1,2 +1,21 @@
-build/
+# Build outputs
+*.exe
+*.out
+*.o
+*.obj
 
+# Build directories
+build/
+bin/
+
+# CMake files (if using CMake)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# VS Code
+.vscode/
+
+# Executables without extensions 
+buffer_test
