@@ -1,5 +1,5 @@
 /*
-Continuous Sampling Test: Creating a circular buffer struct, constantly filling and overriding its values while copying the array at intervals to read it to file and terminal output
+Circular Buffer Test: Simple circular buffer with test code
 */
 
 #include <iostream>
