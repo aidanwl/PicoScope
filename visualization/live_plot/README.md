@@ -11,4 +11,4 @@ This program uses the Pico SDK and a few Python libraries. The Pico SDK is the d
 1. Python Version 3.10.12
 2. Python virtual environment (venv): `sudo apt install python3-venv`, `python3 -m venv venv`, `source venv/bin/activate`
 3. Python tk (Ttkinter): `sudo apt install python3-tk` (GUI platform for WSL Ubuntu)
-4. Python venv requirements: `pip install requirements.txt` (Run this command within the venv)
+4. Python venv requirements: `pip install -r requirements.txt` (Run this command within the venv)
