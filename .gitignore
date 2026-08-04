@@ -19,3 +19,7 @@ Makefile
 
 # Executables without extensions 
 buffer_test
+
+# Python virtual environments
+venv/
+.venv/
