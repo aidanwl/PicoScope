@@ -68,10 +68,19 @@ plt.ion() # Enables interactive mode
 
 fig, ax = plt.subplots(figsize=(10, 4))
 
+value_display = fig.text(
+    0.85,
+    0.5,
+    "",
+    fontsize=12
+)
+
 while True:
     samples = read_buffer()
 
     voltages = adc_to_voltage(samples)
+
+    latest_voltage = voltages[-1]
 
     ax.clear()
 
@@ -80,6 +89,12 @@ while True:
     ax.set_xlabel("Sample")
     ax.set_ylabel("Voltage (V)")
     ax.set_title("ADC Waveform")
+
+
+
+    value_display.set_text(
+        f"Voltage: {latest_voltage:.2f} V"
+    )
 
     ax.set_ylim(0, 3.31)
 
