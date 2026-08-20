@@ -4,7 +4,9 @@ Live Plot: Reads serial outputs, fills a sample array, and then plots the adc re
 
 import serial
 import matplotlib
+
 matplotlib.use("TkAgg")
+
 import matplotlib.pyplot as plt
 
 PORT = "/dev/ttyACM0"
@@ -15,29 +17,91 @@ ser = serial.Serial(PORT, BAUD_RATE)
 
 print("Connected to Pico")
 
-ser.write(b"CONFIG\n")
+# Config
+current_sampling_rate = None
+
+def set_sampling_rate(rate):
+    command = f"RATE {rate}\n"
+    ser.write(command.encode())
+
+# Standardize lines from Pico to (TYPE, VALUE) format
+def process_serial_line(line):
+    if line.startswith("RATE"):
+        rate = int(line[5:])
+        return "RATE", rate
+
+    if line == "START":
+        return "START", None
+
+    if line == "END":
+        return "END", None
+
+    # If not command, assume it is ADC sample
+
+    try:
+        sample = int(line)
+        return "SAMPLE", sample
+
+    except ValueError:
+        return None, None
 
 def read_buffer():
+
+    global current_sampling_rate
+
     samples = []
 
     while True:
+
         line = ser.readline().decode().strip()
 
-        if line == "START":
+        message_type, value = process_serial_line(line)
+
+        if message_type == "RATE":
+
+            current_sampling_rate = value
+
+            print(
+                "Pico sampling rate:",
+                current_sampling_rate,
+                "Hz"
+            )
+
+        elif message_type == "START":
+
             break
+
 
     while True:
+
         line = ser.readline().decode().strip()
 
-        if line == "END":
+        message_type, value = process_serial_line(line)
+
+        if message_type == "SAMPLE":
+
+            samples.append(value)
+
+        elif message_type == "END":
+
             break
-        
-        samples.append(int(line))
+
+        elif message_type == "RATE":
+
+            current_sampling_rate = value
+
+            print(
+                "Pico sampling rate:",
+                current_sampling_rate,
+                "Hz"
+            )
 
     return samples
 
 def adc_to_voltage(samples):
     return [sample * 3.3 / 4095 for sample in samples]
+
+set_sampling_rate(5000)
 
 """
 # Prints one graph (plt.show() disables the loop until it is closed)
@@ -95,7 +159,8 @@ while True:
 
 
     value_display.set_text(
-        f"Voltage: {latest_voltage:.2f} V"
+        f"Voltage: {latest_voltage:.2f} V\n"
+        f"Sampling Rate: {current_sampling_rate} Hz"
     )
 
     ax.set_ylim(0, 3.31)
