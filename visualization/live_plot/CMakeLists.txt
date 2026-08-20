@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # SDK Location
-set(PICO_SDK_PATH "/home/awong50/pico/pico-sdk/")
+set(PICO_SDK_PATH "/home/aidan/pico/pico-sdk/")
 
 include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
 

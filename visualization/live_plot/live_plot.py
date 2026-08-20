@@ -15,6 +15,8 @@ ser = serial.Serial(PORT, BAUD_RATE)
 
 print("Connected to Pico")
 
+ser.write(b"CONFIG\n")
+
 def read_buffer():
     samples = []
 
