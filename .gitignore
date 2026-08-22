@@ -23,3 +23,7 @@ buffer_test
 # Python virtual environments
 venv/
 .venv/
+
+# Python Cache/Compilation
+__pycache__/
+*.py[cod]
