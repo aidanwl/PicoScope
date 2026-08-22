@@ -1,5 +1,8 @@
-import matplotlib.pyplot as plt
+"""
+Waveform plotting 
+"""
 
+import matplotlib.pyplot as plt
 
 def adc_to_voltage(samples):
     return [

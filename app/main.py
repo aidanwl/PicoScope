@@ -1,5 +1,5 @@
 """
-Title: Description
+Main application for PicoScope GUI
 """
 
 import tkinter as tk
@@ -114,9 +114,8 @@ def on_close():
     # Reset Pico to default rate before closing
     if pico.ser.is_open:
         pico.set_sampling_rate(DEFAULT_SAMPLING_RATE)
-
-        # Give Pico time to receive/process the command
         root.after(100, finish_close)
+
     else:
         finish_close()
 

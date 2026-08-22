@@ -1,5 +1,5 @@
 """
-Title: Description
+Serial Interface between Python and C++
 """
 
 import serial 

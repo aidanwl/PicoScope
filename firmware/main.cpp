@@ -1,5 +1,5 @@
 /*
-Title: Description
+PicoScope Firmware for Sampling and communication with Python GUI
 */
 
 #include <iostream>
