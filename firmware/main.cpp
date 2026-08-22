@@ -73,6 +73,8 @@ int main() {
             }
         }
 
+        absolute_time_t start_time = get_absolute_time();
+
         while (copied_samples < BUFFER_SIZE) {
             uint16_t sample = adc_read();
             write_buffer(&buffer, sample);
@@ -80,8 +82,16 @@ int main() {
             sleep_us(sample_period_us);
         }
 
+        absolute_time_t end_time = get_absolute_time();
+
+        uint64_t elapsed_us = absolute_time_diff_us(start_time, end_time);
+
+        uint32_t actual_rate = (uint32_t)((BUFFER_SIZE * 1000000ULL) / elapsed_us);
+
         if (buffer.full && copied_samples >= BUFFER_SIZE && !command_processing) {
             copy_buffer(&buffer, output);
+
+            printf("ACTUAL_RATE %lu\n", actual_rate);
             
             printf("START\n");
             for (uint32_t i = 0; i < BUFFER_SIZE; i++) {

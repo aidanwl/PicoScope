@@ -5,7 +5,6 @@ Main application for PicoScope GUI
 import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
-
 from serial_interface import PicoSerial
 from plot import WaveformPlot
 
@@ -42,13 +41,28 @@ sampling_rate_entry.insert(
 sampling_rate_entry.pack()
 
 
-# Current Rate Display
-current_rate_label = ttk.Label(
+# Requested Rate Display
+requested_rate_label = ttk.Label(
     root,
-    text="Current Rate: -- Hz"
+    text="Requested Rate: -- Hz"
 )
+requested_rate_label.pack(pady=(10, 2))
 
-current_rate_label.pack(pady=10)
+
+# Actual Rate Display
+actual_rate_label = ttk.Label(
+    root,
+    text="Actual Rate: -- Hz"
+)
+actual_rate_label.pack(pady=2)
+
+
+# Accuracy Display
+accuracy_label = ttk.Label(
+    root,
+    text="Accuracy: --"
+)
+accuracy_label.pack(pady=(2, 10))
 
 
 # Sampling Rate Apply Button
@@ -81,15 +95,27 @@ update_id = None
 def update():
     global update_id
 
-    samples, sampling_rate = pico.read_buffer()
+    samples, requested_rate, actual_rate = pico.read_buffer()
 
-    if sampling_rate is not None:
-        current_rate_label.config(
-            text=f"Current Rate: {sampling_rate} Hz"
+    if requested_rate is not None:
+        requested_rate_label.config(
+            text=f"Requested Rate: {requested_rate} Hz"
+        )
+
+    if actual_rate is not None:
+        actual_rate_label.config(
+            text=f"Actual Rate: {actual_rate} Hz"
+        )
+
+    if requested_rate is not None and actual_rate is not None:
+        accuracy = actual_rate / requested_rate * 100
+
+        accuracy_label.config(
+            text=f"Accuracy: {accuracy:.2f}%"
         )
 
     if samples:
-        plot.update(samples, sampling_rate)
+        plot.update(samples, actual_rate)
 
     update_id = root.after(10, update)
 
