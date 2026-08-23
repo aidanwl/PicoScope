@@ -29,6 +29,12 @@ uint32_t copied_samples = 0;
 
 int command_processing = 0;
 
+// Signal Generation
+const uint SIGNAL_PIN = 15;
+const uint32_t SIGNAL_PERIOD_US = 100000;
+absolute_time_t signal_toggle_time;
+bool signal_state = false;
+
 int main() {
     stdio_init_all();
 
@@ -48,6 +54,12 @@ int main() {
 
     adc_gpio_init(26);
     adc_select_input(0);
+
+    gpio_init(SIGNAL_PIN);
+    gpio_set_dir(SIGNAL_PIN, GPIO_OUT);
+    gpio_put(SIGNAL_PIN, 0);
+    
+    signal_toggle_time = make_timeout_time_us(SIGNAL_PERIOD_US / 2);
 
     while (1) {
 
@@ -80,6 +92,12 @@ int main() {
             write_buffer(&buffer, sample);
             copied_samples++;
             sleep_us(sample_period_us);
+
+            if (absolute_time_diff_us(get_absolute_time(), signal_toggle_time) <= 0) {
+                signal_state = !signal_state;
+                gpio_put(SIGNAL_PIN, signal_state);
+                signal_toggle_time = make_timeout_time_us(SIGNAL_PERIOD_US / 2);
+            }
         }
 
         absolute_time_t end_time = get_absolute_time();
