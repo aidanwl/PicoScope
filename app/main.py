@@ -9,14 +9,14 @@ from serial_interface import PicoSerial
 from plot import WaveformPlot
 
 
-DEFAULT_SAMPLING_RATE = 5000
+DEFAULT_SAMPLING_RATE = 10000
 
 pico = PicoSerial()
 
 # GUI
 root = tk.Tk()
 root.title("PicoScope")
-root.geometry("400x250")
+root.geometry("400x350")
 
 plot = WaveformPlot()
 
@@ -87,6 +87,59 @@ apply_button = ttk.Button(
 
 apply_button.pack(pady=5)
 
+# Triggering
+trigger_enabled = tk.BooleanVar(value=True)
+trigger_position = tk.IntVar(value=50)
+
+def toggle_trigger():
+    pico.set_trigger_enabled(trigger_enabled.get())
+
+trigger_button = ttk.Checkbutton(
+    root,
+    text="Trigger",
+    variable=trigger_enabled,
+    command=toggle_trigger
+)
+
+trigger_button.pack(pady=(10, 2))
+
+trigger_position_label = ttk.Label(
+    root,
+    text="Trigger Position: 50%"
+)
+
+
+trigger_position_label.pack()
+
+def update_trigger_position(value):
+    position = int(float(value))
+    trigger_position_label.config(text=f"Trigger Position: {position}%")
+
+trigger_slider = ttk.Scale(
+    root,
+    from_=0,
+    to=100,
+    orient="horizontal",
+    variable=trigger_position,
+    command=update_trigger_position
+)
+
+trigger_slider.pack(
+    fill="x",
+    padx=30,
+    pady=(2,10)
+)
+
+def apply_trigger_position():
+    pico.set_trigger_position(trigger_position.get())
+
+trigger_apply_button = ttk.Button(
+    root,
+    text="Apply Trigger Position",
+    command=apply_trigger_position
+)
+
+trigger_apply_button.pack(pady=5)
 
 # Update
 update_id = None

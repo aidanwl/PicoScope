@@ -27,6 +27,18 @@ class PicoSerial:
 
         self.ser.write(command.encode())
 
+    def set_trigger_enabled(self, enabled):
+        if enabled:
+            command = "TRIGGER ON\n"
+        else:
+            command = "TRIGGER OFF\n"
+
+        self.ser.write(command.encode())
+
+    def set_trigger_position(self, position):
+        command = f"TRIGGER POS {position}\n"
+        self.ser.write(command.encode())
+
 
     def process_line(self, line):
 

@@ -37,8 +37,10 @@ bool signal_state = false;
 
 // Triggering
 uint16_t trigger_level = 2048; // Trigger level for rising edge
-const uint32_t PRE_TRIGGER_SAMPLES = 250; 
-const uint32_t POST_TRIGGER_SAMPLES = BUFFER_SIZE - PRE_TRIGGER_SAMPLES - 1;
+uint32_t pre_trigger_samples = (BUFFER_SIZE - 1) / 2;   
+uint32_t post_trigger_samples = BUFFER_SIZE - pre_trigger_samples - 1;
+
+bool trigger_enabled = true;
 
 // Show waveform is trigger doesn't occur
 const uint64_t AUTO_TRIGGER_TIMEOUT_US = 1000000; // 1 second
@@ -112,31 +114,26 @@ int main() {
 
         previous_sample = sample;
 
-        // Waveform history before trigger
-        if ((buffer.full || buffer.write_index >= PRE_TRIGGER_SAMPLES) && trigger_detected && !command_processing) {
+        // Triggered waveform capture
+        if ((buffer.full || buffer.write_index > pre_trigger_samples) && trigger_enabled &&trigger_detected && !command_processing) {
             
-            // Must check one previous sample since write_index points to next index to write to
-            uint32_t trigger_position = buffer.full ? BUFFER_SIZE - 1 : buffer.write_index - 1;
+            // Find trigger position and copy samples before it
+            uint32_t trigger_position =
+                (buffer.write_index + BUFFER_SIZE - 1) % BUFFER_SIZE;
 
-            // Find oldest position needed to obtain PRE_TRIGGER_SAMPLES before trigger
-            uint32_t start_position = trigger_position - PRE_TRIGGER_SAMPLES;
+            uint32_t start_position =
+                (trigger_position + BUFFER_SIZE - pre_trigger_samples) % BUFFER_SIZE;
 
-            for (uint32_t i = 0; i < PRE_TRIGGER_SAMPLES; i++) {
-                uint32_t position = buffer.full ? (start_position + i) % BUFFER_SIZE : start_position + i;
-
-                if (buffer.full) {
-                    output[i] = buffer.data[(buffer.write_index + position) % BUFFER_SIZE];
-                } else {
-                    output[i] = buffer.data[position];
-                }
+            for (uint32_t i = 0; i < pre_trigger_samples; i++) {
+                output[i] = buffer.data[(start_position + i) % BUFFER_SIZE];
             }
-            
-            output[PRE_TRIGGER_SAMPLES] = sample;
+
+            output[pre_trigger_samples] = sample;
 
             absolute_time_t start_time = get_absolute_time();
 
-            // Copy pre-trigger samples
-            for (uint32_t i = 0; i < POST_TRIGGER_SAMPLES; i++) {
+            // Capture samples after trigger
+            for (uint32_t i = 0; i < post_trigger_samples; i++) {
 
                 // Continue Signal Generation
                 if (absolute_time_diff_us(get_absolute_time(), signal_toggle_time) <= 0) {
@@ -146,7 +143,7 @@ int main() {
                 }     
                 
                 uint16_t post_sample = adc_read();
-                output[PRE_TRIGGER_SAMPLES + 1 + i] = post_sample;
+                output[pre_trigger_samples + 1 + i] = post_sample;
                 write_buffer(&buffer, post_sample);
                 sleep_us(sample_period_us);
             }
@@ -154,11 +151,12 @@ int main() {
             absolute_time_t end_time = get_absolute_time();
 
             uint64_t elapsed_us = absolute_time_diff_us(start_time, end_time);
-            uint32_t actual_rate = (uint32_t)((POST_TRIGGER_SAMPLES * 1000000ULL) / elapsed_us);
+            uint32_t actual_rate = (uint32_t)((post_trigger_samples * 1000000ULL) / elapsed_us);
 
             printf("ACTUAL_RATE %lu\n", actual_rate);
             
             printf("START\n");
+
             for (uint32_t i = 0; i < BUFFER_SIZE; i++) {
                 printf("%d\n", output[i]);
             }
@@ -190,6 +188,8 @@ int main() {
 
 // CONFIG Processing
 void process_command(char* command) {
+
+    // Rate Control
     if (strncmp(command, "RATE ", 5) == 0) {
         uint32_t new_rate = atoi(command + 5);
 
@@ -201,6 +201,26 @@ void process_command(char* command) {
             
             // Debugging output to Python
             printf("RATE %lu\n", sampling_rate);
+        }
+    }
+
+    // Trigger Control
+    else if (strncmp(command, "TRIGGER ON", 10) == 0) {
+        trigger_enabled = true;
+    }
+
+    else if (strncmp(command, "TRIGGER OFF", 11) == 0) {
+        trigger_enabled = false;
+    }
+
+    else if (strncmp(command, "TRIGGER POS", 11) == 0) {
+        uint32_t position = atoi(command + 12);
+
+        if (position <= 100) {
+            pre_trigger_samples = (BUFFER_SIZE - 1) * position / 100;
+            post_trigger_samples = BUFFER_SIZE - pre_trigger_samples - 1;
+            previous_sample = 0;
+            auto_trigger_start = get_absolute_time();
         }
     }
 }   
