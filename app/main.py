@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from serial_interface import PicoSerial
 from plot import WaveformPlot
 from measurements import MeasurementWindow
+from fft import FFTWindow
 
 DEFAULT_SAMPLING_RATE = 10000
 
@@ -19,8 +20,8 @@ root.title("PicoScope")
 root.geometry("400x350")
 
 plot = WaveformPlot()
-
 measurements = MeasurementWindow()
+fft_window = FFTWindow()
 
 
 # Sampling Rate
@@ -172,6 +173,7 @@ def update():
     if samples:
         plot.update(samples, actual_rate)
         measurements.update(samples, actual_rate)
+        fft_window.update(samples, actual_rate)
 
     update_id = root.after(10, update)
 
