@@ -1,45 +1,125 @@
 # PicoScope
 
 PicoScope is a custom oscilloscope built using the Raspberry Pi Pico 2. The Pico
-samples an analog signal into a circular buffer with the onboard ADC and sends the raw readings over USB serial to a Python application, which converts them to voltage and plots the waveform in real time.
+samples an analog signal into a circular buffer with the onboard ADC and sends the raw readings over USB serial to a Python application. The Python application converts the raw ADC readings to voltage and provides waveform visualization, triggering, measurements, frequency-domain analysis, waveform freezing, and waveform saving.
+
+---
 
 ## Features
 
+### Signal Acquisition
+
 - ADC waveform acquisition on ADC0 / GPIO 26 (Pico pin 31)
-- Fixed-size 1,000-sample circular capture buffer for continuous waveform acquisition
-- USB serial interface between the Pico firmware and Python application
-- Python GUI for live waveform visualization, voltage monitoring, and acquisition-rate feedback
-- Automatic restoration of the default acquisition configuration when the Python application closes
-- ADC validation and acquisition experiments under `tests/`
+- 12-bit ADC resolution
+- 0–3.3 V input range
+- Fixed-size 1,000-sample circular capture buffer
+- Configurable sampling rate from the Python GUI
+- Continuous acquisition on the Pico
+- USB serial communication between the Pico and Python application
+- Raw ADC samples converted to voltage in Python
+- Requested sampling-rate reporting
+- Measured actual sampling-rate reporting
+- Sampling-rate accuracy calculation
+
+### Waveform Visualization
+
+- Live waveform display using Matplotlib
+- Voltage displayed on the vertical axis
+- Sample number displayed on the horizontal axis
+- Automatic following of the newest samples
+- Persistent waveform history
+- Zoom in
+- Zoom out
+- Pan left
+- Pan right
+- Pan up
+- Pan down
+- Reset view
+
+### Triggering
+
+- Rising-edge waveform triggering
+- Trigger enable/disable control
+- Configurable trigger position from 0–100%
+- Pre-trigger samples
+- Post-trigger samples
+- Automatic capture fallback when a trigger is not detected
+- Trigger configuration controlled from the Python GUI
+
+---
+
+## Measurements
+
+| Measurement | Description |
+| --- | --- |
+| Frequency | Estimated signal frequency from rising mean-level crossings |
+| Period | Inverse of the measured frequency |
+| RMS | Root-mean-square voltage of the captured samples |
+| Vpp | Difference between maximum and minimum voltage |
+| Vmax | Maximum measured voltage |
+| Vmin | Minimum measured voltage |
+| Mean | Average voltage of the captured waveform |
+| Amplitude | Half of the measured peak-to-peak voltage |
+
+### Frequency-Domain Analysis
+
+- FFT-based frequency-domain analysis
+- Magnitude spectrum visualization
+- DC removal before FFT analysis
+- Frequency axis calculated from the acquisition rate
+- Identification of dominant frequency components
+
+### Waveform Controls
+
+- Freeze the displayed waveform
+- Resume live waveform updates
+- Inspect a frozen waveform without it changing
+- Zoom and pan while inspecting the waveform
+
+### Saving
+
+- Save the waveform at the time the save operation is performed
+- Preserve the current zoom and pan state when saving the graph
+- Save waveform data for later analysis
+- Preserve the displayed waveform and underlying numerical data
+
+### Application Behavior
+
+- Separate waveform visualization window
+- Separate measurement display
+- Separate FFT analysis window
+- Automatic restoration of the default acquisition configuration when the
+  Python application closes
+- Clean serial connection shutdown
+- Matplotlib windows closed during application shutdown
+
+---
+
+### Serial Configuration
+
+The current Python serial configuration is fixed to:
+
+```text
+/dev/ttyACM0
+115200 baud
+```
+
+These values are currently defined in:
+
+```text
+app/serial_interface.py
+```
+
+A future version could allow the serial port and baud rate to be configured.
 
 ## Project Structure
 
 | Directory | Purpose |
 | --- | --- |
 | `firmware/` | Pico firmware, CMake configuration, and UF2 build output |
-| `app/` | Python GUI, serial protocol handling, and waveform plotting |
+| `app/` | Python GUI, serial protocol handling, waveform plotting, measurements, and FFT analysis |
 | `lib/circular_buffer/` | Reusable circular-buffer implementation used by the firmware |
 | `tests/` | ADC, acquisition, buffering, and live-plot experiments |
-
-## Current Progress
-
-### Working
-
-- The Pico initializes ADC0 and samples an analog input.
-- Captures are sent as `START`, 1,000 raw ADC values, and `END` lines.
-- The Python application reads the serial stream and plots the converted voltage.
-- The sampling rate can be changed from the GUI and acknowledged by the Pico.
-
-### In Progress / Known Limitations
-
-- Sampling is controlled by software polling and `sleep_us()`, so the achieved
-	rate is lower than the requested rate, especially at higher frequencies.
-- There is no trigger system, selectable input channel, or configurable capture
-	length yet.
-- Serial settings are currently fixed to `/dev/ttyACM0` and 115200 baud in
-	`app/serial_interface.py`.
-- The firmware currently streams complete blocks rather than providing a
-	continuous, independently timed display update.
 
 ## Requirements (For Windows WSL Ubuntu)
 
@@ -113,3 +193,14 @@ Raw 12-bit ADC values are converted by the application using a 3.3 V reference.
 The test directories contain standalone experiments rather than an automated
 test suite. See `tests/adc_tests/README.md` and
 `tests/live_plot_test/README.md` for their individual setup and results.
+
+## Next Steps
+
+- Improve acquisition timing by replacing software-based sampling delays with Pico hardware timers and/or ADC FIFO/DMA.
+- Improve trigger responsiveness and reduce acquisition latency.
+- Improve frequency estimation for noisy and non-sinusoidal signals.
+- Implement a custom radix-2 FFT to better understand and demonstrate the underlying DSP algorithm.
+- Move selected signal-processing operations onto the Pico where practical.
+- Improve serial communication robustness and error handling.
+- Add additional waveform and signal-analysis controls as the project develops.
+- Expand automated testing for ADC acquisition, triggering, measurements, FFT analysis, and serial communication.
