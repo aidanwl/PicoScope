@@ -6,66 +6,43 @@ import tkinter as tk
 from tkinter import ttk
 import math
 
-
 ADC_MAX = 4095
 ADC_VOLTAGE = 3.3
 
-
 def adc_to_voltage(samples):
-
-    return [
-        sample * ADC_VOLTAGE / ADC_MAX
-        for sample in samples
-    ]
-
+    return [sample * ADC_VOLTAGE / ADC_MAX for sample in samples]
 
 def calculate_rms(voltages):
-
     if not voltages:
         return None
 
-    return math.sqrt(
-        sum(
-            voltage ** 2
-            for voltage in voltages
-        ) / len(voltages)
-    )
-
+    return math.sqrt(sum(voltage ** 2 for voltage in voltages) / len(voltages))
 
 def calculate_vpp(voltages):
-
     if not voltages:
         return None
 
     return max(voltages) - min(voltages)
 
-
 def calculate_vmax(voltages):
-
     if not voltages:
         return None
 
     return max(voltages)
 
-
 def calculate_vmin(voltages):
-
     if not voltages:
         return None
 
     return min(voltages)
 
-
 def calculate_mean(voltages):
-
     if not voltages:
         return None
 
     return sum(voltages) / len(voltages)
 
-
 def calculate_amplitude(voltages):
-
     vpp = calculate_vpp(voltages)
 
     if vpp is None:
@@ -73,9 +50,7 @@ def calculate_amplitude(voltages):
 
     return vpp / 2
 
-
 def calculate_frequency(samples, sampling_rate):
-
     if not samples or not sampling_rate:
         return None
 
@@ -86,18 +61,13 @@ def calculate_frequency(samples, sampling_rate):
     crossings = []
 
     for i in range(1, len(voltages)):
-
         if voltages[i - 1] < mean <= voltages[i]:
-
             crossings.append(i)
 
     if len(crossings) < 2:
         return None
 
-    periods = [
-        crossings[i] - crossings[i - 1]
-        for i in range(1, len(crossings))
-    ]
+    periods = [crossings[i] - crossings[i - 1] for i in range(1, len(crossings))]
 
     average_period = sum(periods) / len(periods)
 
@@ -106,33 +76,19 @@ def calculate_frequency(samples, sampling_rate):
 
     return sampling_rate / average_period
 
-
 def calculate_period(samples, sampling_rate):
-
-    frequency = calculate_frequency(
-        samples,
-        sampling_rate
-    )
+    frequency = calculate_frequency(samples, sampling_rate)
 
     if frequency is None or frequency == 0:
         return None
 
     return 1 / frequency
 
-
 class MeasurementWindow:
-
     def __init__(self):
-
         self.window = tk.Toplevel()
-
-        self.window.title(
-            "PicoScope Measurements"
-        )
-
-        self.window.geometry(
-            "350x400"
-        )
+        self.window.title("PicoScope Measurements")
+        self.window.geometry("350x400")
 
         title = ttk.Label(
             self.window,
@@ -199,7 +155,6 @@ class MeasurementWindow:
         self.amplitude_label.pack(pady=5)
 
     def update(self, samples, sampling_rate):
-
         if not samples or not sampling_rate:
             return
 
@@ -226,68 +181,58 @@ class MeasurementWindow:
 
         # Frequency
         if frequency is not None:
-
             self.frequency_label.config(
                 text=f"Frequency: {frequency:.2f} Hz"
             )
 
         else:
-
             self.frequency_label.config(
                 text="Frequency: -- Hz"
             )
 
         # Period
         if period is not None:
-
             self.period_label.config(
                 text=f"Period: {period * 1000:.3f} ms"
             )
 
         else:
-
             self.period_label.config(
                 text="Period: -- ms"
             )
 
         # RMS
         if rms is not None:
-
             self.rms_label.config(
                 text=f"RMS: {rms:.3f} V"
             )
 
         # Vpp
         if vpp is not None:
-
             self.vpp_label.config(
                 text=f"Vpp: {vpp:.3f} V"
             )
 
         # Vmax
         if vmax is not None:
-
             self.vmax_label.config(
                 text=f"Vmax: {vmax:.3f} V"
             )
 
         # Vmin
         if vmin is not None:
-
             self.vmin_label.config(
                 text=f"Vmin: {vmin:.3f} V"
             )
 
         # Mean
         if mean is not None:
-
             self.mean_label.config(
                 text=f"Mean: {mean:.3f} V"
             )
 
         # Amplitude
         if amplitude is not None:
-
             self.amplitude_label.config(
                 text=f"Amplitude: {amplitude:.3f} V"
             )

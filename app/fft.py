@@ -6,13 +6,10 @@ import tkinter as tk
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 ADC_MAX = 4095
 ADC_VOLTAGE = 3.3
 
-
 class FFTWindow:
-
     def __init__(self):
         self.fig, self.ax = plt.subplots(figsize=(8, 4))
 
@@ -28,7 +25,6 @@ class FFTWindow:
         plt.show(block=False)
 
     def update(self, samples, sampling_rate):
-
         if not samples or not sampling_rate:
             return
 
