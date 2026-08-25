@@ -112,6 +112,26 @@ app/serial_interface.py
 
 A future version could allow the serial port and baud rate to be configured.
 
+## Serial Protocol
+
+The Python app sends sampling-rate changes as:
+
+```text
+RATE 10000
+```
+
+The Pico acknowledges a valid rate with `RATE <hz>` and sends captures in this
+format:
+
+```text
+START
+<raw ADC sample>
+...
+END
+```
+
+Raw 12-bit ADC values are converted by the application using a 3.3 V reference.
+
 ## Project Structure
 
 | Directory | Purpose |
@@ -167,26 +187,6 @@ The app opens the control window and a Matplotlib waveform window. Connect the
 analog signal to GPIO 26 / ADC0 and a Pico ground pin. Keep the input between 0
 and 3.3 V. Close the GUI to stop the application (resets the Pico to the
 default 5 kHz application rate before disconnecting).
-
-## Serial Protocol
-
-The Python app sends sampling-rate changes as:
-
-```text
-RATE 10000
-```
-
-The Pico acknowledges a valid rate with `RATE <hz>` and sends captures in this
-format:
-
-```text
-START
-<raw ADC sample>
-...
-END
-```
-
-Raw 12-bit ADC values are converted by the application using a 3.3 V reference.
 
 ## Tests
 
